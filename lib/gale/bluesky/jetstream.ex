@@ -2,10 +2,8 @@ defmodule Gale.Bluesky.Jetstream do
   use WebSockex
 
   require Logger
-  # Listen and parse the stream
 
   def start_link(opts) do
-    # url = "wss://jetstream1.us-west.bsky.network/subscribe"
     url = "wss://jetstream1.us-west.bsky.network/subscribe"
     WebSockex.start_link(url, __MODULE__, opts)
   end
