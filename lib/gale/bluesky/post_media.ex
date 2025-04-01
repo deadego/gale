@@ -1,18 +1,6 @@
 defmodule Gale.PostMedia do
   @base_url "https://cdn.bsky.app/img"
 
-  # "embed" => %{
-  #   "$type" => "app.bsky.embed.video",
-  #   "aspectRatio" => %{"height" => 280, "width" => 280},
-  #   "video" => %{
-  #     "$type" => "blob",
-  #     "mimeType" => "video/mp4",
-  #     "ref" => %{
-  #       "$link" => "bafkreihhm6rn2lhlbo6by4xwocb4zbg5elkreygkt4qjexcblt43sotxou"
-  #     },
-  #     "size" => 36503
-  #   }
-  # }
   def extract_video(post) do
     did = post["did"]
 
@@ -24,10 +12,23 @@ defmodule Gale.PostMedia do
 
   def extract_external(post) do
     did = post["did"]
+    uri = get_in(post, ["commit", "record", "embed", "external", "uri"]) || ""
+    url_pattern = ~r/https?:\/\/[^\s]+\?hh=\d+&ww=\d+$/
 
-    case get_in(post, ["commit", "record", "embed", "external"]) do
-      nil -> []
-      external -> [parse_external(external, did)]
+    if Regex.match?(url_pattern, uri) do
+      [
+        %{
+          uri: uri,
+          thumb: %{
+            url: uri
+          }
+        }
+      ]
+    else
+      case get_in(post, ["commit", "record", "embed", "external"]) do
+        nil -> []
+        external -> [parse_external(external, did)]
+      end
     end
   end
 

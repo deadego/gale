@@ -8,7 +8,7 @@ defmodule Gale.Bluesky.HttpApi.Actor do
            ]
          ) do
       {:ok, %{status: 200, body: response}} ->
-        response |> dbg()
+        response
 
       response ->
         response
