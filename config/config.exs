@@ -61,6 +61,10 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :gale, :bluesky,
+  user: System.get_env("BSKY_USER") || "Missing Bluesky user env",
+  pass: System.get_env("BSKY_PASS") || "Missing Bluesky pass env"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
