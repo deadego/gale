@@ -33,6 +33,15 @@ defmodule GaleWeb.HomePageLive do
     {:noreply, socket}
   end
 
+  def handle_event(
+        "delete_filter",
+        %{"filter" => filter_string},
+        %{assigns: %{filters: filters}} = socket
+      ) do
+    filters = List.delete(filters, filter_string)
+    {:noreply, socket |> stream(filter_string, [], reset: true) |> assign(:filters, filters)}
+  end
+
   def handle_info({"posts", post}, socket) do
     socket =
       Enum.reduce(socket.assigns.filters, socket, fn filter, socket ->
@@ -41,7 +50,7 @@ defmodule GaleWeb.HomePageLive do
 
           socket
           |> stream_insert(filter, Map.merge(post, %{"profile" => profile}),
-            limit: 1000,
+            limit: 300,
             at: 0
           )
         else
