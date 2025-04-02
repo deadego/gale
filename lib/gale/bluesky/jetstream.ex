@@ -3,14 +3,25 @@ defmodule Gale.Bluesky.Jetstream do
 
   require Logger
 
-  def start_link(_) do
+  def start_link(opts \\ []) do
     url = "wss://jetstream1.us-west.bsky.network/subscribe?wantedCollections[]=app.bsky.feed.post"
-    WebSockex.start_link(url, __MODULE__, %{})
+
+    WebSockex.start_link(
+      url,
+      __MODULE__,
+      Keyword.merge(opts, reconnect: true, reconnect_after_msec: 5_000)
+    )
   end
 
   def init(state) do
     Logger.info("Connected?")
     {:ok, state}
+  end
+
+  @impl true
+  def handle_disconnect(_conn, state) do
+    IO.puts("Disconnected. Reconnecting...")
+    {:reconnect, state}
   end
 
   @impl true
@@ -48,5 +59,22 @@ defmodule Gale.Bluesky.Jetstream do
 
   defp filter_posts(post) do
     post
+  end
+end
+
+defmodule Gale.Bluesky.JetstreamSupervisor do
+  use Supervisor
+
+  def start_link(init_arg) do
+    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_init_arg) do
+    children = [
+      {Gale.Bluesky.Jetstream, []}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one, max_restarts: 10, max_seconds: 60)
   end
 end

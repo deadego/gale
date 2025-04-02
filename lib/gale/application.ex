@@ -14,7 +14,7 @@ defmodule Gale.Application do
       {Phoenix.PubSub, name: Gale.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Gale.Finch},
-      Gale.Bluesky.Jetstream,
+      Gale.Bluesky.JetstreamSupervisor,
 
       # Start a worker by calling: Gale.Worker.start_link(arg)
       # {Gale.Worker, arg},
