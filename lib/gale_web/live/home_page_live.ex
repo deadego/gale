@@ -2,35 +2,39 @@ defmodule GaleWeb.HomePageLive do
   use GaleWeb, :live_view
 
   def mount(_, _session, socket) do
-    data = %{}
-    types = %{filter: :string}
-    initial_changeset = Ecto.Changeset.cast({data, types}, %{}, Map.keys(types))
-
     if connected?(socket), do: Phoenix.PubSub.subscribe(Gale.PubSub, "jetstream")
 
     socket =
       socket
       |> assign(:filters, [])
-      |> assign(:filter_form, to_form(initial_changeset, as: "form"))
+      |> assign(:filter_form, to_form(%{"filter" => ""}, as: "form"))
 
     {:ok, socket}
   end
 
-  def handle_event("change_filter", %{"form" => %{"filter" => _filter_string}}, socket) do
-    # Do something with the filter
-    {:noreply, socket}
+  def handle_event("change_filter", %{"form" => %{"filter" => filter_string}}, socket) do
+    {:noreply, socket |> assign(:filter_form, to_form(%{"filter" => filter_string}, as: "form"))}
   end
 
   def handle_event("submit_filter", %{"form" => %{"filter" => filter_string}}, socket) do
-    # Do something with the filter
-    socket = assign(socket, :filters, socket.assigns.filters ++ [filter_string])
+    socket =
+      if filter_string in socket.assigns.filters do
+        socket
+      else
+        assign(socket, :filters, socket.assigns.filters ++ [filter_string])
+      end
 
     socket =
-      socket
-      |> stream_configure(filter_string, dom_id: & &1["commit"]["cid"])
-      |> stream(filter_string, [])
+      if Map.has_key?(socket.assigns, :streams) &&
+           Map.has_key?(socket.assigns.streams, filter_string) do
+        socket
+      else
+        socket
+        |> stream_configure(filter_string, dom_id: & &1["commit"]["cid"])
+        |> stream(filter_string, [])
+      end
 
-    {:noreply, socket}
+    {:noreply, socket |> assign(:filter_form, to_form(%{"filter" => ""}, as: "form"))}
   end
 
   def handle_event(
@@ -39,7 +43,9 @@ defmodule GaleWeb.HomePageLive do
         %{assigns: %{filters: filters}} = socket
       ) do
     filters = List.delete(filters, filter_string)
-    {:noreply, socket |> stream(filter_string, [], reset: true) |> assign(:filters, filters)}
+    socket = socket |> stream(filter_string, [], reset: true) |> assign(:filters, filters)
+
+    {:noreply, socket}
   end
 
   def handle_info({"posts", post}, socket) do
