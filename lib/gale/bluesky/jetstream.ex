@@ -3,9 +3,9 @@ defmodule Gale.Bluesky.Jetstream do
 
   require Logger
 
-  def start_link(opts) do
-    url = "wss://jetstream1.us-west.bsky.network/subscribe"
-    WebSockex.start_link(url, __MODULE__, opts)
+  def start_link(_) do
+    url = "wss://jetstream1.us-west.bsky.network/subscribe?wantedCollections[]=app.bsky.feed.post"
+    WebSockex.start_link(url, __MODULE__, %{})
   end
 
   def init(state) do
@@ -14,9 +14,8 @@ defmodule Gale.Bluesky.Jetstream do
   end
 
   @impl true
-  def handle_connect(_conn, state) do
-    Logger.info("Authed?")
-    send(state.liveview_pid, {:jetstream_socket_connected, :ok})
+  def handle_connect(conn, state) do
+    Logger.debug(conn)
     {:ok, state}
   end
 
@@ -24,8 +23,7 @@ defmodule Gale.Bluesky.Jetstream do
   def handle_frame({_type, message}, state) do
     case JSON.decode(message) do
       {:ok, parsed_msg} ->
-        parsed_msg
-        |> filter_posts(state)
+        filter_posts(parsed_msg)
 
       {:error, reason} ->
         Logger.error("Failed to parse msg", reason)
@@ -43,16 +41,12 @@ defmodule Gale.Bluesky.Jetstream do
                "langs" => ["en"]
              }
            }
-         } = post,
-         state
+         } = post
        ) do
-    send(state.liveview_pid, {:jetstream_post, post})
+    Phoenix.PubSub.broadcast(Gale.PubSub, "jetstream", {"posts", post})
   end
 
-  defp filter_posts(
-         post,
-         _state
-       ) do
+  defp filter_posts(post) do
     post
   end
 end

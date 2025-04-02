@@ -14,7 +14,7 @@ defmodule Gale.Application do
       {Phoenix.PubSub, name: Gale.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Gale.Finch},
-      {DynamicSupervisor, name: Gale.BlueSkyJetstreamSupervisor, strategy: :one_for_one},
+      Gale.Bluesky.Jetstream,
 
       # Start a worker by calling: Gale.Worker.start_link(arg)
       # {Gale.Worker, arg},

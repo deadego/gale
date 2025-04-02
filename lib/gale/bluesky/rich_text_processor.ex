@@ -1,4 +1,6 @@
 defmodule Gale.Bluesky.RichTextProcessor do
+  def process(nil, _), do: ""
+
   def process(text, facets) do
     # Sort facets by byteStart and convert positions to integers
     prepared_facets =
