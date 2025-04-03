@@ -90,11 +90,10 @@ defmodule GaleWeb.HomePageLive do
   def handle_event(
         "delete_filter",
         %{"filter" => filter_string},
-        %{assigns: %{filters: filters, current_user: current_user}} = socket
+        %{assigns: %{filters: filters, current_user: nil}} = socket
       ) do
     filters = List.delete(filters, filter_string)
     socket = socket |> stream(filter_string, [], reset: true) |> assign(:filters, filters)
-    Gale.Users.update_filters(current_user, %{"filters" => socket.assigns.filters})
 
     {:noreply, socket}
   end
@@ -102,10 +101,11 @@ defmodule GaleWeb.HomePageLive do
   def handle_event(
         "delete_filter",
         %{"filter" => filter_string},
-        %{assigns: %{filters: filters}} = socket
+        %{assigns: %{filters: filters, current_user: current_user}} = socket
       ) do
     filters = List.delete(filters, filter_string)
     socket = socket |> stream(filter_string, [], reset: true) |> assign(:filters, filters)
+    Gale.Users.update_filters(current_user, %{"filters" => socket.assigns.filters})
 
     {:noreply, socket}
   end
