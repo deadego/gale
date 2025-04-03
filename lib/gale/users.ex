@@ -215,6 +215,12 @@ defmodule Gale.Users do
     end
   end
 
+  def update_filters(user, filters) do
+    user
+    |> User.filters_changeset(filters)
+    |> Repo.update()
+  end
+
   ## Session
 
   @doc """

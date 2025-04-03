@@ -1,5 +1,5 @@
-<header class="px-4 mb-10">
-  <div class="border-b border-zinc-100 py-3 text-sm">
+<header class="flex items-center px-4 mb-10">
+  <div class="flex-1 border-b border-zinc-100 py-3 text-sm">
     <a href="/">
       Gale
       <svg
@@ -50,6 +50,48 @@
       </a>
     </span>
   </div>
+
+  <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
+    <%= if @current_user do %>
+      <li class="text-[0.8125rem] leading-6 text-zinc-900">
+        {@current_user.email}
+      </li>
+      <li>
+        <.link
+          href={~p"/users/settings"}
+          class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+        >
+          Settings
+        </.link>
+      </li>
+      <li>
+        <.link
+          href={~p"/users/log_out"}
+          method="delete"
+          class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+        >
+          Log out
+        </.link>
+      </li>
+    <% else %>
+      <li>
+        <.link
+          href={~p"/users/register"}
+          class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+        >
+          Register
+        </.link>
+      </li>
+      <li>
+        <.link
+          href={~p"/users/log_in"}
+          class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+        >
+          Log in
+        </.link>
+      </li>
+    <% end %>
+  </ul>
 </header>
 <main class="px-4">
   <div class="mx-auto w-full">

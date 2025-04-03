@@ -11,6 +11,7 @@ defmodule Gale.Users.User do
     field :confirmed_at, :utc_datetime
     field :access_jwt, :string, redact: true
     field :refresh_jwt, :string, redact: true
+    field :filters, {:array, :string}, default: []
     timestamps(type: :utc_datetime)
   end
 
@@ -159,5 +160,10 @@ defmodule Gale.Users.User do
     else
       add_error(changeset, :current_password, "is not valid")
     end
+  end
+
+  def filters_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:filters])
   end
 end
