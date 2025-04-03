@@ -37,7 +37,7 @@ defmodule GaleWeb.HomePageLive do
   def handle_event(
         "submit_filter",
         %{"form" => %{"filter" => filter_string}},
-        %{assigns: %{current_user: current_user}} = socket
+        %{assigns: %{current_user: nil}} = socket
       ) do
     socket =
       if filter_string in socket.assigns.filters do
@@ -56,18 +56,21 @@ defmodule GaleWeb.HomePageLive do
         |> stream(filter_string, [])
       end
 
-    Gale.Users.update_filters(current_user, %{"filters" => socket.assigns.filters})
-
     {:noreply, socket |> assign(:filter_form, to_form(%{"filter" => ""}, as: "form"))}
   end
 
-  def handle_event("submit_filter", %{"form" => %{"filter" => filter_string}}, socket) do
+  def handle_event(
+        "submit_filter",
+        %{"form" => %{"filter" => filter_string}},
+        %{assigns: %{current_user: current_user}} = socket
+      ) do
     socket =
       if filter_string in socket.assigns.filters do
         socket
       else
         assign(socket, :filters, socket.assigns.filters ++ [filter_string])
       end
+      |> dbg()
 
     socket =
       if Map.has_key?(socket.assigns, :streams) &&
@@ -78,6 +81,8 @@ defmodule GaleWeb.HomePageLive do
         |> stream_configure(filter_string, dom_id: & &1["commit"]["cid"])
         |> stream(filter_string, [])
       end
+
+    Gale.Users.update_filters(current_user, %{"filters" => socket.assigns.filters})
 
     {:noreply, socket |> assign(:filter_form, to_form(%{"filter" => ""}, as: "form"))}
   end
