@@ -54,6 +54,7 @@ defmodule Gale.Bluesky.Jetstream do
            }
          } = post
        ) do
+    Gale.CounterServer.increment()
     Phoenix.PubSub.broadcast(Gale.PubSub, "jetstream", {"posts", post})
   end
 

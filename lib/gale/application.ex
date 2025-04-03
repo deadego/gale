@@ -15,6 +15,7 @@ defmodule Gale.Application do
       # Start the Finch HTTP client for sending emails
       {Finch, name: Gale.Finch},
       Gale.Bluesky.JetstreamSupervisor,
+      Gale.CounterServer,
 
       # Start a worker by calling: Gale.Worker.start_link(arg)
       # {Gale.Worker, arg},

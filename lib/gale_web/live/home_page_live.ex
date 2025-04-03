@@ -2,7 +2,9 @@ defmodule GaleWeb.HomePageLive do
   use GaleWeb, :live_view
 
   def mount(_, _session, %{assigns: %{current_user: %{filters: filters}}} = socket) do
-    if connected?(socket), do: Phoenix.PubSub.subscribe(Gale.PubSub, "jetstream")
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(Gale.PubSub, "jetstream")
+    end
 
     socket =
       Enum.reduce(filters, socket, fn filter_string, socket ->
@@ -13,6 +15,7 @@ defmodule GaleWeb.HomePageLive do
 
     socket =
       socket
+      |> assign(:count_posts_per_minute, 0)
       |> assign(:filters, filters)
       |> assign(:filter_form, to_form(%{"filter" => ""}, as: "form"))
 
@@ -26,6 +29,7 @@ defmodule GaleWeb.HomePageLive do
       socket
       |> assign(:filters, [])
       |> assign(:filter_form, to_form(%{"filter" => ""}, as: "form"))
+      |> assign(:count_posts_per_minute, 0)
 
     {:ok, socket}
   end
@@ -56,7 +60,9 @@ defmodule GaleWeb.HomePageLive do
         |> stream(filter_string, [])
       end
 
-    {:noreply, socket |> assign(:filter_form, to_form(%{"filter" => ""}, as: "form"))}
+    {:noreply,
+     socket
+     |> assign(:filter_form, to_form(%{"filter" => ""}, as: "form"))}
   end
 
   def handle_event(
@@ -108,6 +114,11 @@ defmodule GaleWeb.HomePageLive do
     Gale.Users.update_filters(current_user, %{"filters" => socket.assigns.filters})
 
     {:noreply, socket}
+  end
+
+  def handle_info({"count", count}, socket) do
+    IO.inspect(["WTF!!!!!!!!!!!!", count])
+    {:noreply, socket |> assign(:count_posts_per_minute, count)}
   end
 
   def handle_info({"posts", post}, socket) do
