@@ -15,10 +15,10 @@
   </.simple_form>
 </div>
 
-<div class="flex gap-x-4">
+<div class="flex gap-x-8">
   <%= for filter <- @filters do %>
     <div class="flex-col max-w-lg">
-      <h3 class="text-lg font-medium my-4">
+      <h3 class="text-lg font-medium my-8">
         <span class="inline-flex items-center rounded-md bg-gray-400/10 px-2 py-1 text-xl font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20">
           {filter}
           <span phx-click="delete_filter" phx-value-filter={filter} class="cursor-pointer">
@@ -26,10 +26,10 @@
           </span>
         </span>
       </h3>
-      <div id={filter} phx-update="stream">
+      <div id={filter} class="h-screen overflow-y-auto" phx-update="stream">
         <div
           :for={{id, post} <- @streams[filter]}
-          class="overflow-hidden rounded-lg bg-white shadow-lg my-4"
+          class="overflow-hidden rounded-lg bg-white shadow-lg my-4 mr-4"
           id={id}
         >
           <div :if={Gale.PostMedia.extract_images(post) != []} class="p-4">
